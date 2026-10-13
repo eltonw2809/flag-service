@@ -49,7 +49,7 @@ Este é o serviço de CRUD (Create, Read, Update, Delete) do projeto ToggleMaste
 
 **Primeiro, você precisa de uma chave de API válida!**
 
-1.  Vá até o terminal do `auth-service` (que deve estar rodando) e crie uma chave:
+1.  Vá até o terminal do `flag-service` (que deve estar rodando) e crie uma chave:
     ```bash
     curl -X POST http://localhost:8001/admin/keys \
     -H "Content-Type: application/json" \
