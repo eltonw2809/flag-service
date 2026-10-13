@@ -14,15 +14,13 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python runtime dependencies (use psycopg2-binary to avoid building libpq)
-# If you prefer to use a requirements.txt file, replace this RUN with:
-# COPY requirements.txt ./
-# RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Install Python runtime dependencies using the project's requirements.txt
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir flask gunicorn psycopg2-binary python-dotenv requests
+    && pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy only application files (keep layers small)
-COPY flag-service-main /app
+COPY . /app
 
 # Ensure the app uses the PORT env var from the README (default 8002)
 ENV PORT=8002
