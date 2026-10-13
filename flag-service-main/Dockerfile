@@ -1,27 +1,33 @@
-#Usando uma imagem maior para compilar a aplicação, que já vem com o Go instalado.
-FROM golang:1.21 AS builder
+# Python Dockerfile for flag-service (optimized, small surface)
+# Replaces previous Go Dockerfile — builds a lightweight image that runs the Flask app
+
+FROM python:3.11-slim
+
+# Prevent Python from writing .pyc files and enable stdout/stderr flushing
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-#Copia o arquivo de dependências do Go para dentro da imagem e faz o download das dependências
-COPY go.mod ./
-RUN go mod download
+# Install minimal system dependencies (ca-certificates for TLS) and clean up apt lists
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-#Nessa etapa, copiamos o código fonte da aplicação para dentro da imagem.
-COPY *.go ./
+# Install Python runtime dependencies (use psycopg2-binary to avoid building libpq)
+# If you prefer to use a requirements.txt file, replace this RUN with:
+# COPY requirements.txt ./
+# RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir flask gunicorn psycopg2-binary python-dotenv requests
 
-RUN go mod tidy
+# Copy only application files (keep layers small)
+COPY flag-service-main /app
 
-#Compilando o binário
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+# Ensure the app uses the PORT env var from the README (default 8002)
+ENV PORT=8002
+EXPOSE 8002
 
-#Usando uma imagem mais leve para rodar a aplicação, diminuindo o tamanho da imagem final
-FROM alpine:latest
-
-WORKDIR /app
-
-#copiando o binário compilado da imagem builder para a imagem final
-COPY --from=builder /docker-gs-ping /docker-gs-ping
-
-#Comando para rodar a aplicação
-CMD ["/docker-gs-ping"]
+# Run with gunicorn for production-like process management
+# Use a small number of workers suitable for a small service; tune as needed
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "app:app", "--workers", "2", "--threads", "4"]
