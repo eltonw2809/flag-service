@@ -1,4 +1,4 @@
-# auth-service
+# flag-service
 
 Este é o serviço de autenticação do projeto ToggleMaster. Ele é responsável por criar e validar chaves de API.
 
@@ -9,7 +9,7 @@ Este é o serviço de autenticação do projeto ToggleMaster. Ele é responsáve
 
 ## 🚀 Rodando Localmente
 
-Clone o repositório e entre na pasta auth-service.
+Clone o repositório e entre na pasta flag-service.
 
 ### Prepare o Banco de Dados
 
@@ -22,7 +22,7 @@ psql -U seu_usuario -d auth_db -f db/init.sql
 
 ### Configure as Variáveis de Ambiente
 
-Crie um arquivo chamado .env na raiz desta pasta (auth-service/) com o seguinte conteúdo:
+Crie um arquivo chamado .env na raiz desta pasta (flag-service/) com o seguinte conteúdo:
 
 ```env
 # String de conexão do seu banco de dados PostgreSQL
